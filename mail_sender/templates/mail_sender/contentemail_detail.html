@@ -1,0 +1,33 @@
+{% extends 'mail_sender/base.html' %}
+
+  {% block content %}
+
+      <div class="container">
+
+          <div class="card-deck mb-12 text-center">
+
+            <div class="card mb-4 box-shadow">
+
+
+              <div class="card-body">
+                <p>Тема письма: </p>
+                <h5 class="">{{ object.headliner }} </h5>
+                <p></p>
+                <p>Текст письма:</p>
+                <h5>{{ object.text }} </h5>
+                <p></p>
+
+
+               <a href="{% url 'mailsender:email_template_update' object.id %}" type="button" class="btn btn-lg btn-outline-warning">Редактировать</a>
+               <a href="{% url 'mailsender:all_customers' %}" type="button" class="btn btn-lg btn-outline-primary">Вернуться</a>
+
+
+
+              </div>
+
+            </div>
+
+          </div>
+
+      </div>
+  {% endblock %}

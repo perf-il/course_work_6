@@ -1,0 +1,40 @@
+{% extends 'mail_sender/base.html' %}
+
+  {% block content %}
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="">Список шаблонов для рассылки</h1>
+      <p class="lead">Тема и текст письма, доступные для рассылок</p>
+    </div>
+
+
+    <div class="container">
+        <a href="{% url 'mailsender:email_template_create' %}" class="btn btn-lg btn-outline-primary">Добавить шаблон</a>
+        <p></p>
+        <div class="row">
+            {% for item in object_list%}
+                <div class="col-md-4">
+                    <div class="card mb-4 box-shadow">
+                        <div class="card-body">
+
+                            <p class=""><b>Тема письма:</b></p>
+                            <p class="">{{ item.headliner }}</p>
+                            <p class=""><b>Текст письма:</b></p>
+                            <p class="">{{ item.text   | slice:"0:100"}}</p>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <a href="{% url 'mailsender:email_template' item.id %}"><button type="button" class="btn btn-outline-dark" >Просмотр</button></a>
+                                </div>
+
+                                <div class="col-6">
+                                    <a href="{% url 'mailsender:email_template_delete' item.id %}"><button type="button" class="btn btn-outline-danger" >Удалить</button></a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+      </div>
+  {% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'mail_sender/base.html' %}
+
+  {% block content %}
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="">Список клиентов для рассылки</h1>
+      <p class="lead">Почтовые адреса и имена клиентов, которые подписаны на рассылку</p>
+    </div>
+
+
+    <div class="container">
+        <a href="{% url 'mailsender:customer_create' %}" class="btn btn-lg btn-outline-primary">Добавить клиента</a>
+        <p></p>
+        <div class="row">
+            {% for customer in object_list%}
+                <div class="col-md-4">
+                    <div class="card mb-4 box-shadow">
+                        <div class="card-body">
+                            {% if customer.full_name %}
+                                <p class=""><b>Имя:</b> {{ customer.full_name }}</p>
+                            {% else %}
+                                <p class=""><b>Имя:</b> не указано</p>
+                            {% endif %}
+                            <p class=""><b>E-mail:</b> {{ customer.email }} </p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <a href="{% url 'mailsender:customer' customer.id %}"><button type="button" class="btn btn-outline-dark" >Просмотр</button></a>
+                                </div>
+
+                                <div class="col-6">
+                                    <a href="{% url 'mailsender:customer_delete' customer.id %}"><button type="button" class="btn btn-outline-danger" >Удалить</button></a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+      </div>
+  {% endblock %}
