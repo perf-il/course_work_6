@@ -1,6 +1,5 @@
-from django.conf import Settings
 from django.db import models
-from django.template.defaulttags import comment
+
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -59,6 +58,10 @@ class SendSettings(models.Model):
     status = models.CharField(max_length=2, choices=CHOICES_STATUS, default='CR', verbose_name='Статус')
     message = models.ForeignKey(ContentEmail, on_delete=models.CASCADE, verbose_name='Текст рассылки', **NULLABLE)
     customer = models.ManyToManyField(Customer, verbose_name='Клиенты', **NULLABLE)
+
+    def delete(self, *args, **kwargs):
+        self.status = 'CL'
+        self.save()
 
     def __str__(self):
         return f'{self.name}'
