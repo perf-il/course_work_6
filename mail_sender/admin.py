@@ -10,12 +10,12 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(SendSettings)
 class SendSettingsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'send_time', 'period', 'status',)
+    list_display = ('name', 'send_time', 'period', 'status', 'created_by',)
 
 
 @admin.register(ContentEmail)
 class ContentEmailAdmin(admin.ModelAdmin):
-    list_display = ('headliner', 'text',)
+    list_display = ('headliner', 'text', 'created_by',)
 
 
 @admin.register(EmailLogs)
