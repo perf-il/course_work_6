@@ -7,6 +7,8 @@ app_name = MailSenderConfig.name
 
 urlpatterns = [
 
+    path('', my_view.home, name='home'),
+
     path('customers', my_view.CustomersView.as_view(), name='all_customers'),
     path('customer/<int:pk>', my_view.CustomerDetailView.as_view(), name='customer'),
     path('customer/create', my_view.CustomerCreateView.as_view(), name='customer_create'),
