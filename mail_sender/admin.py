@@ -20,7 +20,7 @@ class ContentEmailAdmin(admin.ModelAdmin):
 
 @admin.register(EmailLogs)
 class EmailLogsAdmin(admin.ModelAdmin):
-    list_display = ('data_last_sent', 'status_issue', 'server_respond',)
+    list_display = ('sender', 'data_last_sent', 'status_issue', 'server_respond',)
 
 
 
