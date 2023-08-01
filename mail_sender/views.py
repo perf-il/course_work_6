@@ -4,6 +4,25 @@ from django.views import generic
 
 from mail_sender import models as my_models
 from mail_sender import forms as my_forms
+from blog.models import Blog
+from mail_sender.services import get_cache
+
+
+def home(request):
+    customers = my_models.Customer.objects.all()
+    settings = my_models.SendSettings.objects.all()
+    act_settings = my_models.SendSettings.objects.filter(status='CR')
+    blog_posts = Blog.objects.filter(is_published=True)
+    blog_posts_random = blog_posts.order_by('?')[:3]
+    context = {
+        'customers': customers,
+        'settings': settings,
+        'act_settings': act_settings,
+        'blog_posts': blog_posts,
+        'blog_posts_random': get_cache('posts', blog_posts_random),
+        'title': 'Главная'
+    }
+    return render(request, 'mail_sender/home.html', context)
 
 
 class CustomersView(generic.ListView):
