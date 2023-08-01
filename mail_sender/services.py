@@ -18,6 +18,7 @@ def get_period_days(code):
 
 
 def get_cache(key, model):
+    """функция для создания кэша для модели"""
     if settings.CACHE_ENABLED:
         current_cache = cache.get(key)
         if current_cache is None:
@@ -29,6 +30,7 @@ def get_cache(key, model):
 
 
 def check_mail_sender():
+    """функция для проверки активных рассылок и создания записи в логах"""
     send_settings = SendSettings.objects.all()
     send_settings = SendSettings.objects.filter(status='CR')
     send_settings = SendSettings.objects.filter(send_time__lte=datetime.now())

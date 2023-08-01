@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
@@ -25,20 +27,29 @@ def home(request):
     return render(request, 'mail_sender/home.html', context)
 
 
-class CustomersView(generic.ListView):
+class CheckPermEditMixin:
+    """Mixin для проверки владельца или суперпользователя"""
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.created_by != self.request.user and not self.request.user.is_superuser:
+            raise Http404('Недостаточно прав доступа - только владелец может редактировать эту страницу')
+        return self.object
+
+
+class CustomersView(LoginRequiredMixin, generic.ListView):
     model = my_models.Customer
     extra_context = {
         'title': 'Получатели'
     }
 
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset = super().get_queryset(*args, **kwargs)
-    #     queryset = queryset.filter(is_published=True)
-    #     queryset = queryset.order_by('-data_creating')
-    #     return queryset
+    def get_queryset(self, *args, **kwargs):
+        """выборка активных пользователей из всех"""
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(is_blocked=False)
+        return queryset
 
 
-class CustomerDetailView(generic.DetailView):
+class CustomerDetailView(LoginRequiredMixin, generic.DetailView):
     model = my_models.Customer
 
     def get_context_data(self, **kwargs):
@@ -47,19 +58,19 @@ class CustomerDetailView(generic.DetailView):
         return context_data
 
 
-class CustomerCreateView(generic.CreateView):
+class CustomerCreateView(LoginRequiredMixin, generic.CreateView):
     model = my_models.Customer
     form_class = my_forms.CustomerForm
     success_url = reverse_lazy('mailsender:all_customers')
 
 
-class CustomerUpdateView(generic.UpdateView):
+class CustomerUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = my_models.Customer
     form_class = my_forms.CustomerForm
     success_url = reverse_lazy('mailsender:all_customers')
 
 
-class CustomerDeleteView(generic.DeleteView):
+class CustomerDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = my_models.Customer
     success_url = reverse_lazy('mailsender:all_customers')
     extra_context = {
@@ -67,20 +78,14 @@ class CustomerDeleteView(generic.DeleteView):
     }
 
 
-class ContentEmailView(generic.ListView):
+class ContentEmailView(LoginRequiredMixin, generic.ListView):
     model = my_models.ContentEmail
     extra_context = {
         'title': 'Шаблоны писем'
     }
 
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset = super().get_queryset(*args, **kwargs)
-    #     queryset = queryset.filter(is_published=True)
-    #     queryset = queryset.order_by('-data_creating')
-    #     return queryset
 
-
-class ContentEmailDetailView(generic.DetailView):
+class ContentEmailDetailView(LoginRequiredMixin, generic.DetailView):
     model = my_models.ContentEmail
 
     def get_context_data(self, **kwargs):
@@ -89,19 +94,26 @@ class ContentEmailDetailView(generic.DetailView):
         return context_data
 
 
-class ContentEmailCreateView(generic.CreateView):
+class ContentEmailCreateView(LoginRequiredMixin, generic.CreateView):
+    model = my_models.ContentEmail
+    form_class = my_forms.WriteEmailForm
+    success_url = reverse_lazy('mailsender:all_email_templates')
+
+    def form_valid(self, form):
+        """заполнение поля владельца при валидации формы"""
+        if form.is_valid():
+            fields = form.save(commit=False)
+            fields.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class ContentEmailUpdateView(LoginRequiredMixin, CheckPermEditMixin, generic.UpdateView):
     model = my_models.ContentEmail
     form_class = my_forms.WriteEmailForm
     success_url = reverse_lazy('mailsender:all_email_templates')
 
 
-class ContentEmailUpdateView(generic.UpdateView):
-    model = my_models.ContentEmail
-    form_class = my_forms.WriteEmailForm
-    success_url = reverse_lazy('mailsender:all_email_templates')
-
-
-class ContentEmailDeleteView(generic.DeleteView):
+class ContentEmailDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = my_models.ContentEmail
     success_url = reverse_lazy('mailsender:all_email_templates')
     extra_context = {
@@ -109,20 +121,14 @@ class ContentEmailDeleteView(generic.DeleteView):
     }
 
 
-class SetEmailingView(generic.ListView):
+class SetEmailingView(LoginRequiredMixin, generic.ListView):
     model = my_models.SendSettings
     extra_context = {
         'title': 'Настройки рассылок'
     }
 
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset = super().get_queryset(*args, **kwargs)
-    #     queryset = queryset.filter(is_published=True)
-    #     queryset = queryset.order_by('-data_creating')
-    #     return queryset
 
-
-class SetEmailingDetailView(generic.DetailView):
+class SetEmailingDetailView(LoginRequiredMixin, generic.DetailView):
     model = my_models.SendSettings
 
     def get_context_data(self, **kwargs):
@@ -131,19 +137,26 @@ class SetEmailingDetailView(generic.DetailView):
         return context_data
 
 
-class SetEmailingCreateView(generic.CreateView):
+class SetEmailingCreateView(LoginRequiredMixin, generic.CreateView):
+    model = my_models.SendSettings
+    form_class = my_forms.SendSettingsForm
+    success_url = reverse_lazy('mailsender:all_emailing')
+
+    def form_valid(self, form):
+        """заполнение поля владельца при валидации формы"""
+        if form.is_valid():
+            fields = form.save(commit=False)
+            fields.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class SetEmailingUpdateView(LoginRequiredMixin, CheckPermEditMixin, generic.UpdateView):
     model = my_models.SendSettings
     form_class = my_forms.SendSettingsForm
     success_url = reverse_lazy('mailsender:all_emailing')
 
 
-class SetEmailingUpdateView(generic.UpdateView):
-    model = my_models.SendSettings
-    form_class = my_forms.SendSettingsForm
-    success_url = reverse_lazy('mailsender:all_emailing')
-
-
-class SetEmailingDeleteView(generic.DeleteView):
+class SetEmailingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = my_models.SendSettings
     success_url = reverse_lazy('mailsender:all_emailing')
     extra_context = {
