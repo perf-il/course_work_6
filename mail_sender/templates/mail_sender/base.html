@@ -26,9 +26,11 @@
       {% endif %}
       <nav class="my-2 my-md-0 mr-md-3">
         <a class="p-2 text-dark" href="{% url 'mailsender:home' %}">Главная</a>
-        <a class="p-2 text-dark" href="{% url 'mailsender:all_customers' %}">Клиенты</a>
-        <a class="p-2 text-dark" href="{% url 'mailsender:all_email_templates' %}">Шаблоны писем</a>
-        <a class="p-2 text-dark" href="{% url 'mailsender:all_emailing' %}">Рассылки</a>
+        {% if user.is_authenticated %}
+          <a class="p-2 text-dark" href="{% url 'mailsender:all_customers' %}">Клиенты</a>
+          <a class="p-2 text-dark" href="{% url 'mailsender:all_email_templates' %}">Шаблоны писем</a>
+          <a class="p-2 text-dark" href="{% url 'mailsender:all_emailing' %}">Рассылки</a>
+        {% endif %}
         <a class="p-2 text-dark" href="{% url 'blog:blog' %}">Блог</a>
         {% if user.is_authenticated %}
             <a class="p-2 text-dark" href="{% url 'users:logout' %}">Выйти</a>
