@@ -1,5 +1,6 @@
 from django.db import models
 
+from users.models import User
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -29,6 +30,11 @@ class Customer(models.Model):
     email = models.CharField(max_length=150, verbose_name='e-mail')
     full_name = models.CharField(max_length=150, verbose_name='фио', **NULLABLE)
     comment = models.TextField(verbose_name='комментарий', **NULLABLE)
+    is_blocked = models.BooleanField(default=False, verbose_name='заблокирован')
+
+    def delete(self, *args, **kwargs):
+        self.is_blocked = True
+        self.save()
 
     def __str__(self):
         return f'{self.email}'
@@ -41,6 +47,7 @@ class Customer(models.Model):
 class ContentEmail(models.Model):
     headliner = models.CharField(max_length=150, verbose_name='тема письма')
     text = models.TextField(verbose_name='текст письма')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Добавлено', **NULLABLE)
 
     def __str__(self):
         return f'{self.headliner}'
@@ -58,6 +65,7 @@ class SendSettings(models.Model):
     status = models.CharField(max_length=2, choices=CHOICES_STATUS, default='CR', verbose_name='Статус')
     message = models.ForeignKey(ContentEmail, on_delete=models.CASCADE, verbose_name='Текст рассылки', **NULLABLE)
     customer = models.ManyToManyField(Customer, verbose_name='Клиенты', **NULLABLE)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Добавлено', **NULLABLE)
 
     def delete(self, *args, **kwargs):
         self.status = 'CL'
