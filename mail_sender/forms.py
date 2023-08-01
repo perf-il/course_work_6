@@ -23,12 +23,12 @@ class WriteEmailForm(StyleFormMixin, forms.ModelForm):
 
     class Meta:
         model = ContentEmail
-        fields = '__all__'
+        exclude = ('created_by',)
 
 
 class SendSettingsForm(StyleFormMixin, forms.ModelForm):
 
     class Meta:
         model = SendSettings
-        exclude = ('status',)
+        exclude = ('status', 'created_by',)
 
