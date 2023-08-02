@@ -1,8 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
-from transliterate import slugify
+
 
 from blog.forms import BlogForm
 from blog.models import Blog
@@ -24,10 +24,11 @@ class BlogView(generic.ListView):
 class BlogDetailView(generic.DetailView):
     model = Blog
 
-    def get_object(self, queryset=None):
-        post = super().get_object()
-        post.save()
-        return post
+    def get_object(self, *args, **kwargs):
+        queryset = self.get_queryset()
+        slug = self.kwargs.get('slug')
+        obj = get_object_or_404(queryset, slug=slug)
+        return obj
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -47,7 +48,6 @@ class BlogCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         if form.is_valid():
             fields = form.save(commit=False)
-            fields.slug = slugify(form.cleaned_data['title_name'])
             fields.autor = self.request.user
             fields.save()
         return super().form_valid(form)
